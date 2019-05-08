@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "sha256.h"
 #include "sha256.c"
 
@@ -16,7 +17,8 @@
  
 int main()
 {
-   char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()";
+   char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[{]}|'\";:<,.>/?";
+   //char alphabet[] = "jmcc";
    int password[256]; //Each individual password will be stored here.
    int c; 
    FILE *fp;
@@ -27,7 +29,7 @@ int main()
    char guess[16];
    unsigned char  guesshash[256]; //The hash of the guess will be stored here.
    SHA256_CTX ctx;
- 
+   bool found = false;
    
    while ((c = fgetc(fp)) != EOF) {
        bytes[count] = c;
@@ -35,42 +37,58 @@ int main()
    }
    fclose(fp);
    for (int i = 0; i < passlength; i++){
-       password[i] = bytes[i+96];
-       printf("%02x", bytes[i+96]);
+       password[i] = bytes[i+32];
+       printf("%02x", password[i]);
+       fflush(stdout);
    }
    int i = 0;
-   //char guesshashchar[32];
-   while(i < 1){
+   while(!found){
    
        int charguess1 = 0;
        int charguess2 = 0;
        int charguess3 = 0;
        int charguess4 = 0;
-       guess[0] = alphabet[charguess1];
-       guess[1] = alphabet[charguess2];
-       guess[2] = alphabet[charguess3];
-       guess[3] = alphabet[charguess4];
-       sha256_init(&ctx);
-       sha256_update(&ctx, "jmcc", 4);
-       sha256_final(&ctx, guesshash);
-       
+       while (charguess1 < strlen(alphabet)){
+           while (charguess2 < strlen(alphabet)){
+               while (charguess3 < strlen(alphabet)){
+                   while (charguess4 < strlen(alphabet)){
+                       guess[0] = alphabet[charguess1];
+                       guess[1] = alphabet[charguess2];
+                       guess[2] = alphabet[charguess3];
+                       guess[3] = alphabet[charguess4]; 
+                       //printf("%s", guess);
+                       sha256_init(&ctx);
+                       sha256_update(&ctx, guess, 4);
+                       sha256_final(&ctx, guesshash);
+                       int j = 0;
+                       while (j < strlen(guesshash)){
+                           if (guesshash[j] != password[j]){
+                               break;
+                           }
+                           else{
+                               j++;
+                           }    
+                       }
+                       if (j == 32){
+                           printf("Correct string is: %s\n", guess);
+                       }
+                       charguess4++;  
+                   }
+                   charguess3++;
+                   charguess4 = 0;
+               }
+               charguess2++;
+               charguess3 = 0;
+               charguess4 = 0;
+               
+           }
+           charguess1++;
+           charguess2 = 0;
+           charguess3 = 0;
+           charguess4 = 0;
+       }   
        //Compare each byte of the hashed guess with the password. 
-       int j = 0;
-       while (j < strlen(guesshash)){
-           if (guesshash[j] == password[j]){
-               j++;
-           }
-           else{
-               printf("False");
-               j++;
-           }
-       printf("True");
-       }
-       i++;
    }
-   
-   sha256_update(&ctx,(unsigned char*)"jmcc",4);
-   sha256_final(&ctx,guesshash);
    return 0;
 }
 
