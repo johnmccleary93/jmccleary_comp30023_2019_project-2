@@ -15,7 +15,7 @@
 #include <unistd.h>
 
 
-// Function to compute a^m mod n. Method obtained from https://www.techiedelight.com/c-program-demonstrate-diffie-hellman-algorithm/
+// Function to compute a^g mod p. Method obtained from https://www.techiedelight.com/c-program-demonstrate-diffie-hellman-algorithm/
 int compute(int a, int g, int p)
 {
 	int r;
@@ -97,18 +97,19 @@ int main(int argc, char ** argv)
     sprintf(buffer, "jmccleary\n");
     printf("Username is:%s", buffer);
     n = write(sockfd, buffer, strlen(buffer));
+    
     bzero(buffer, 256);
-    int mysecretint = 61;
+    int mysecretint = 47;
     printf("My secret int is: %d\n", mysecretint);
     int mysecretkey = compute(15, mysecretint, 97);
     char *mysecretkeystr;
-    sprintf(mysecretkeystr, "%d", mysecretkey);
-    sprintf(buffer, "%s\n", mysecretkeystr);
+    sprintf(mysecretkeystr, "%d\n", mysecretkey);
+    strcpy(buffer, mysecretkeystr);
     printf("My secret key is: %s", buffer);
     n = write(sockfd, buffer, strlen(buffer));
     
 
-    bzero(buffer, 256);
+    bzero(buffer, 255);
 
     n = read(sockfd, buffer, 255);
 
@@ -124,13 +125,14 @@ int main(int argc, char ** argv)
     printf("Server key is: %s", buffer);
     char sharedkeystr[256];
     sprintf(sharedkeystr, "%d\n", sharedkey);
-    bzero(buffer, 256);
-    sprintf(buffer, "%s", sharedkeystr);
+    bzero(buffer, strlen(buffer));
+    sprintf(buffer, "%s\n", sharedkeystr);
     printf("Shared key is: %s", buffer);
     write(sockfd, buffer, strlen(buffer));
-    bzero(buffer, 256);
+    bzero(buffer, strlen(buffer));
     read(sockfd, buffer, 255);
     printf("%s\n", buffer);
-
+    fgets(buffer, 510, stdin);
+    n = write(sockfd, buffer, strlen(buffer));
     return 0;
-}
+}  
