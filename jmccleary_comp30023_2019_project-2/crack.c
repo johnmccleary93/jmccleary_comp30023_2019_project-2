@@ -13,41 +13,17 @@
     printf("%s",tmp); 
     }
  }
- 
- 
-int main()
-{
+void findPassword4(int password[], int passnum){
    char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[{]}|'\";:<,.>/?";
-   //char alphabet[] = "jmcc";
-   int password[256]; //Each individual password will be stored here.
-   int c; 
-   FILE *fp;
-   fp = fopen("/home/jmccleary/pwd4sha256", "r");
-   int passlength = 32;
-   int bytes[320]; // All bytes from sha256 file
-   int count = 0; //Count determines where to add all the bytes into the bytes field.
    char guess[16];
    unsigned char  guesshash[256]; //The hash of the guess will be stored here.
    SHA256_CTX ctx;
+   int charguess1 = 0;
+   int charguess2 = 0;
+   int charguess3 = 0;
+   int charguess4 = 0;
    bool found = false;
-   
-   while ((c = fgetc(fp)) != EOF) {
-       bytes[count] = c;
-       count++;
-   }
-   fclose(fp);
-   for (int i = 0; i < passlength; i++){
-       password[i] = bytes[i+32];
-       printf("%02x", password[i]);
-       fflush(stdout);
-   }
-   int i = 0;
-   while(!found){
-   
-       int charguess1 = 0;
-       int charguess2 = 0;
-       int charguess3 = 0;
-       int charguess4 = 0;
+   while (!found){   
        while (charguess1 < strlen(alphabet)){
            while (charguess2 < strlen(alphabet)){
                while (charguess3 < strlen(alphabet)){
@@ -56,7 +32,6 @@ int main()
                        guess[1] = alphabet[charguess2];
                        guess[2] = alphabet[charguess3];
                        guess[3] = alphabet[charguess4]; 
-                       //printf("%s", guess);
                        sha256_init(&ctx);
                        sha256_update(&ctx, guess, 4);
                        sha256_final(&ctx, guesshash);
@@ -70,7 +45,8 @@ int main()
                            }    
                        }
                        if (j == 32){
-                           printf("Correct string is: %s\n", guess);
+                           printf("%s %d\n", guess, passnum + 1);
+                           return;
                        }
                        charguess4++;  
                    }
@@ -87,7 +63,49 @@ int main()
            charguess3 = 0;
            charguess4 = 0;
        }   
-       //Compare each byte of the hashed guess with the password. 
+   }
+
+}
+
+
+void getPassword(int bytes[], int password[], int i){
+  int passlength = 32;
+  for (int j = 0; j < passlength; j++){
+      password[j] = bytes[i];
+      i = i + 1;
+  }
+} 
+ 
+int main()
+{
+   char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[{]}|'\";:<,.>/?";
+   //char alphabet[] = "jmcc";
+   int password[256]; //Each individual password will be stored here.
+   int c; 
+   FILE *fp;
+   fp = fopen("/home/jmccleary/pwd4sha256", "r");
+   int passlength = 32;
+   int bytes[320]; // All bytes from sha256 file
+   int count = 0; //Count determines where to add all the bytes into the bytes field.
+   char guess[16];
+   unsigned char  guesshash[256]; //The hash of the guess will be stored here.
+   SHA256_CTX ctx;
+   bool found = false;
+   int i = 0;
+   int passnum = 0;
+   
+   while ((c = fgetc(fp)) != EOF) {
+       bytes[count] = c;
+       count++;
+   }
+   fclose(fp);
+
+   while(passnum < 10){
+       bzero(password, 256);
+       getPassword(bytes, password, i);
+       findPassword4(password, passnum);
+       i = i + 32;
+       passnum++;
    }
    return 0;
 }
