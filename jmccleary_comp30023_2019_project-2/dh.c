@@ -132,7 +132,5 @@ int main(int argc, char ** argv)
     bzero(buffer, strlen(buffer));
     read(sockfd, buffer, 255);
     printf("%s\n", buffer);
-    fgets(buffer, 510, stdin);
-    n = write(sockfd, buffer, strlen(buffer));
     return 0;
 }  
