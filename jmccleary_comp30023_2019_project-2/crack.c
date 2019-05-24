@@ -261,18 +261,8 @@ void crack2(char * filepath1, char * filepath2){
 
 int main(int argc, char * argv[])
 {
-   char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[{]}|'\";:<,.>/?";
-   int password[256]; //Each individual password will be stored here.
-   int c; 
-   int passlength = 32;
    int bytes4[320]; // All bytes from pwd4sha256 file
    int bytes6[640]; //All bytes from the pwd6sha256 file
-   int count = 0; //Count determines where to add all the bytes into the bytes field.
-   char guess[16];
-   unsigned char  guesshash[256]; //The hash of the guess will be stored here.
-   SHA256_CTX ctx;
-   bool found = false;
-   int i = 64;
    if (argc == 1) {
        addHashes(bytes4, "/home/jmccleary/pwd4sha256");
        addHashes(bytes6, "/home/jmccleary/pwd6sha256");
