@@ -202,9 +202,9 @@ void comparePassword(int passwordints[], int passhashes[]){
     sha256_final(&ctx, passwordhash);
     int passwordguess = 0;
     int j = 0;
-    while (((passwordguess * 32) + j) <= length){
-        if (j == 32){
-            printf("%s %d\n", password, passwordguess);
+    while (((passwordguess * 32) + j) <= 30000){
+        if(j == 32){
+            printf("%s %d\n", password, passwordguess + 1);
             fflush(stdout);
             break;    
             }
@@ -242,19 +242,17 @@ void crack2(char * filepath1, char * filepath2){
      c = 0;  
      while ((c = fgetc(fp1)) != EOF){
            if (c != 13 && c != 10){ 
-                //printf("%d ", c);
-                //printf("count is %d", count);
                 passwordints[count] = c; 
-                //printf("%c", passwordints[count]);
                 count++;                                 
            }
-           else{
+           else if (c != 10){
                //printf("%d ", c);
                 comparePassword(passwordints, passhashes);
                 count = 0;
                 //memset(passwordints, 0, sizeof(passwordints));
            }
      }
+     comparePassword(passwordints, passhashes);
      fclose(fp1);
      fclose(fp2);
      //printf("%c", password[0]);
@@ -264,11 +262,8 @@ void crack2(char * filepath1, char * filepath2){
 int main(int argc, char * argv[])
 {
    char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[{]}|'\";:<,.>/?";
-   //char alphabet[] = "jmcc";
    int password[256]; //Each individual password will be stored here.
    int c; 
-   //FILE *fp;
-   //fp = fopen("/home/jmccleary/pwd4sha256", "r");
    int passlength = 32;
    int bytes4[320]; // All bytes from pwd4sha256 file
    int bytes6[640]; //All bytes from the pwd6sha256 file
@@ -285,7 +280,7 @@ int main(int argc, char * argv[])
        findPassword6(bytes6);
    }
    else if (argc == 3){
-       crack2("/home/jmccleary/comp30023/jmccleary_comp30023_2019_project-2/passwords.txt", "/home/jmccleary/comp30023/jmccleary_comp30023_2019_project-2/pwd4sha256.txt");
+       crack2(argv[1], argv[2]);
    }
    return 0;
 }
