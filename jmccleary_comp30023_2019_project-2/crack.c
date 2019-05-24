@@ -14,8 +14,23 @@
     printf("%s",tmp); 
     }
  }
-void findPassword4(int bytes[], int passnum){
-   char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[{]}|'\";:<,.>/?";
+
+int hex_to_int(char c){
+        int first = c / 16 - 3;
+        int second = c % 16;
+        int result = first*10 + second;
+        if(result > 9) result--;
+        return result;
+}
+
+int hex_to_ascii(char c, char d){
+        int high = hex_to_int(c) * 16;
+        int low = hex_to_int(d);
+        return high+low;
+}
+
+void findPassword4(int bytes[]){
+   char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[{]}|'\";:\\<,.>/?`~";
    //char alphabet[] = "jmcc";
    char guess[16];
    unsigned char  guesshash[256]; //The hash of the guess will be stored here.
@@ -37,7 +52,7 @@ void findPassword4(int bytes[], int passnum){
                    sha256_final(&ctx, guesshash);
                    int passwordguess = 0;
                    int j = 0;
-                   while (((passwordguess * 32) + j) < 320){
+                   while (((passwordguess * 32) + j) <= 320){
                        if (j == 32){
                            printf("%s %d\n", guess, passwordguess + 1);
                            fflush(stdout);
@@ -69,7 +84,7 @@ void findPassword4(int bytes[], int passnum){
    }   
 }
 
-void findPassword6(int bytes[], int passnum){
+void findPassword6(int bytes[]){
    char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[{]}|'\";:<,.>/?";
    //char alphabet[] = "jmccleL[123";
    char guess[24];
@@ -100,9 +115,9 @@ void findPassword6(int bytes[], int passnum){
                            sha256_final(&ctx, guesshash);
                            int passwordguess = 0; //This checks what password we are currently looking at.
                            int j = 0; //This is what byte of the password we're looking at.
-                           while (((passwordguess * 32) + j) < 640){
+                           while (((passwordguess * 32) + j) <= 640){
                                if (j == 32){
-                                   printf("%s %d\n", guess, passwordguess + 1);
+                                   printf("%s %d\n", guess, passwordguess + 11);
                                    fflush(stdout);
                                    break;
                                }
@@ -173,7 +188,80 @@ void addHashes(int bytes[], char * filepath){
     fclose(fp);
 } 
 
-int main()
+void comparePassword(int passwordints[], int passhashes[]){
+    SHA256_CTX ctx;
+    char password[40000];
+    unsigned char passwordhash[256];
+    int length = 300;
+    for (int i = 0; i < length; i++){
+        //printf("%d", passwordints[i]);
+        password[i] = passwordints[i];
+    }
+    sha256_init(&ctx);
+    sha256_update(&ctx, password, strlen(password));
+    sha256_final(&ctx, passwordhash);
+    int passwordguess = 0;
+    int j = 0;
+    while (((passwordguess * 32) + j) <= length){
+        if (j == 32){
+            printf("%s %d\n", password, passwordguess);
+            fflush(stdout);
+            break;    
+            }
+        else if(passwordhash[j] != passhashes[(passwordguess * 32) + j]){
+            //printf("Password guess is %02x Hash guess is %02x\n", passwordhash[j], passhashes[(passwordguess * 32) + j]);
+            passwordguess = passwordguess + 1;
+            j = 0;
+        }
+        else{
+            j++;
+        } 
+    }     
+} 
+
+void crack2(char * filepath1, char * filepath2){
+     int c = 0;
+     FILE *fp1;
+     FILE *fp2;
+     fp1 = fopen(filepath1, "r");
+     fp2 = fopen(filepath2, "r");
+     SHA256_CTX ctx;
+     int passwordints[40000];
+     char password[40000];
+     int count = 0;
+     int length = sizeof(password)/sizeof(int);
+     unsigned char passwordhash[256];
+     int passwordbytes[40000];
+     int passhashes[40000];
+     
+     while ((c = fgetc(fp2)) != EOF){
+           passhashes[count] = c;
+           count++; 
+     }
+     count = 0;
+     c = 0;  
+     while ((c = fgetc(fp1)) != EOF){
+           if (c != 13 && c != 10){ 
+                //printf("%d ", c);
+                //printf("count is %d", count);
+                passwordints[count] = c; 
+                //printf("%c", passwordints[count]);
+                count++;                                 
+           }
+           else{
+               //printf("%d ", c);
+                comparePassword(passwordints, passhashes);
+                count = 0;
+                //memset(passwordints, 0, sizeof(passwordints));
+           }
+     }
+     fclose(fp1);
+     fclose(fp2);
+     //printf("%c", password[0]);
+}
+
+
+int main(int argc, char * argv[])
 {
    char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[{]}|'\";:<,.>/?";
    //char alphabet[] = "jmcc";
@@ -190,13 +278,15 @@ int main()
    SHA256_CTX ctx;
    bool found = false;
    int i = 64;
-   int passnum = 2;
-   
-   //addHashes(bytes4, "/home/jmccleary/pwd4sha256");
-   addHashes(bytes6, "/home/jmccleary/pwd6sha256");
-   //findPassword4(bytes4, passnum);
-   findPassword6(bytes6, passnum);
-
+   if (argc == 1) {
+       addHashes(bytes4, "/home/jmccleary/pwd4sha256");
+       addHashes(bytes6, "/home/jmccleary/pwd6sha256");
+       findPassword4(bytes4);
+       findPassword6(bytes6);
+   }
+   else if (argc == 3){
+       crack2("/home/jmccleary/comp30023/jmccleary_comp30023_2019_project-2/passwords.txt", "/home/jmccleary/comp30023/jmccleary_comp30023_2019_project-2/pwd4sha256.txt");
+   }
    return 0;
 }
 
