@@ -2,7 +2,7 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -std=gnu99 -I. 
 DEPS = sha256.h, sha256.c
-OBJ = crack.o 
+OBJ = crack.o
 EXE = crack
 
 ##Create .o files from .c files. Searches for .c files with same .o names given in OBJ
