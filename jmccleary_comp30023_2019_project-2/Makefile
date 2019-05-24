@@ -1,22 +1,8 @@
-##Adapted from http://www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
-CC=gcc
-CFLAGS=-Wall -Wextra -std=gnu99 -I. 
-DEPS = sha256.h, sha256.c
-OBJ = crack.o
-EXE = crack
+output: crack.o
+	 gcc crack.o -o crack
 
-##Create .o files from .c files. Searches for .c files with same .o names given in OBJ
-%.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+crack.o: crack.c sha256.h sha256.c
+	gcc -c crack.c
 
-##Create executable linked file from object files. 
-$(EXE): $(OBJ)
-	gcc -o $@ $^ $(CFLAGS)
-
-##Delete object files
 clean:
-	/bin/rm $(OBJ)
-
-##Performs clean (i.e. delete object files) and deletes executable
-clobber: clean
-	/bin/rm $(EXE) 
+	 rm *.o output
