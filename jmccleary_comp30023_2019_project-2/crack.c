@@ -30,10 +30,10 @@ int hex_to_ascii(char c, char d){
 }
 
 void findPassword4(int bytes[]){
-   char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[{]}|'\";:\\<,.>/?`~";
+   unsigned char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[{]}|'\";:\\<,.>/?`~";
    //char alphabet[] = "jmcc";
    unsigned char guess[16];
-   unsigned char  guesshash[256]; //The hash of the guess will be stored here.
+   unsigned char guesshash[256]; //The hash of the guess will be stored here.
    SHA256_CTX ctx;
    int charguess1 = 0;
    int charguess2 = 0;
@@ -225,13 +225,8 @@ void crack2(char * filepath1, char * filepath2){
      FILE *fp2;
      fp1 = fopen(filepath1, "r");
      fp2 = fopen(filepath2, "r");
-     SHA256_CTX ctx;
      int passwordints[40000];
-     char password[40000];
      int count = 0;
-     int length = sizeof(password)/sizeof(int);
-     unsigned char passwordhash[256];
-     int passwordbytes[40000];
      int passhashes[40000];
      
      while ((c = fgetc(fp2)) != EOF){
