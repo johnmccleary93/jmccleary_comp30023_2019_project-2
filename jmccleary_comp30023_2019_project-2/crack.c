@@ -32,7 +32,7 @@ int hex_to_ascii(char c, char d){
 void findPassword4(int bytes[]){
    char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[{]}|'\";:\\<,.>/?`~";
    //char alphabet[] = "jmcc";
-   char guess[16];
+   unsigned char guess[16];
    unsigned char  guesshash[256]; //The hash of the guess will be stored here.
    SHA256_CTX ctx;
    int charguess1 = 0;
@@ -87,7 +87,7 @@ void findPassword4(int bytes[]){
 void findPassword6(int bytes[]){
    char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[{]}|'\";:<,.>/?";
    //char alphabet[] = "jmccleL[123";
-   char guess[24];
+   unsigned char guess[24];
    unsigned char  guesshash[256]; //The hash of the guess will be stored here.
    SHA256_CTX ctx;
    int charguess1 = 0;
@@ -190,7 +190,7 @@ void addHashes(int bytes[], char * filepath){
 
 void comparePassword(int passwordints[], int passhashes[]){
     SHA256_CTX ctx;
-    char password[40000];
+    unsigned char password[40000];
     unsigned char passwordhash[256];
     int length = 300;
     for (int i = 0; i < length; i++){
